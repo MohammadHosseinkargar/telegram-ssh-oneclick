@@ -15,6 +15,7 @@ if ! command -v git >/dev/null 2>&1; then
 fi
 
 if [[ -d "$INSTALL_DIR/.git" ]]; then
+  git config --global --add safe.directory "$INSTALL_DIR"
   git -C "$INSTALL_DIR" fetch --all --tags
   git -C "$INSTALL_DIR" pull --ff-only
 else
