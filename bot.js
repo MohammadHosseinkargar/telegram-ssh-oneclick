@@ -1,6 +1,10 @@
 // @ts-check
+require("dotenv").config();
+
 const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
+const path = require("path");
+const os = require("os");
 const { Client } = require("ssh2");
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
@@ -12,47 +16,97 @@ const {
 } = require("./helper");
 var exec = require("child_process").exec;
 
+const DEFAULT_PATH_PRIVATEKEY = path.join(os.homedir(), ".ssh", "id_rsa");
+const DEFAULT_SERVERS_FILE = "/opt/telegram-ssh/servers.json";
+
+function firstDefined(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function failConfig(message) {
+  console.error(`Configuration error: ${message}`);
+  process.exit(1);
+}
+
 const argv = yargs(hideBin(process?.argv))
   .option("bot_token", {
     alias: "b",
     describe: "Telegram bot token",
     type: "string",
-    demandOption: true,
   })
   .option("chat_id", {
     alias: "c",
     describe: "Telegram chat ID",
     type: "string",
-    demandOption: true,
   })
   .option("owner_ids", {
     alias: "o",
     describe: "Comma-separated list of owner chat IDs",
     type: "string",
-    demandOption: true,
   })
   .option("path_privatekey", {
     alias: "p",
     describe: "Path to SSH private key",
     type: "string",
-    demandOption: true,
   })
   .option("servers_file", {
     alias: "s",
     describe: "Path to servers JSON file",
     type: "string",
-    demandOption: true,
-    default: "/var/telegram-ssh/servers.json",
   }).argv;
 
-const TOKEN = argv?.bot_token,
-  CHAT_ID = argv?.chat_id,
-  OWNER_IDS = argv?.owner_ids?.split(","),
-  PATH_PRIVATEKEY = argv?.path_privatekey,
-  SERVERS_FILE = argv?.servers_file;
+const TOKEN = firstDefined(argv?.bot_token, process.env.BOT_TOKEN);
+const CHAT_ID = firstDefined(argv?.chat_id, process.env.CHAT_ID);
+const OWNER_IDS_RAW = firstDefined(argv?.owner_ids, process.env.OWNER_IDS);
+const PATH_PRIVATEKEY = firstDefined(
+  argv?.path_privatekey,
+  process.env.PATH_PRIVATEKEY,
+  DEFAULT_PATH_PRIVATEKEY
+);
+const SERVERS_FILE = firstDefined(
+  argv?.servers_file,
+  process.env.SERVERS_FILE,
+  DEFAULT_SERVERS_FILE
+);
+const OWNER_IDS = OWNER_IDS_RAW
+  ? OWNER_IDS_RAW.split(",").map((id) => id.trim()).filter(Boolean)
+  : [];
 
-//
-console.log({ TOKEN, CHAT_ID, OWNER_IDS, PATH_PRIVATEKEY, SERVERS_FILE });
+if (!TOKEN || !CHAT_ID || OWNER_IDS.length === 0) {
+  failConfig(
+    "Missing required values. Provide BOT_TOKEN, CHAT_ID, OWNER_IDS via CLI flags (--bot_token, --chat_id, --owner_ids), environment variables, or .env file."
+  );
+}
+
+if (!/^\d{6,}:[A-Za-z0-9_-]{20,}$/.test(TOKEN)) {
+  failConfig("BOT_TOKEN does not match expected format.");
+}
+
+if (!/^-?\d+$/.test(String(CHAT_ID).trim())) {
+  failConfig("CHAT_ID must be numeric.");
+}
+
+if (!OWNER_IDS.every((id) => /^-?\d+$/.test(id))) {
+  failConfig("OWNER_IDS must be comma-separated numeric IDs.");
+}
+
+if (!fs.existsSync(PATH_PRIVATEKEY)) {
+  failConfig(`PATH_PRIVATEKEY not found: ${PATH_PRIVATEKEY}`);
+}
+
+const serversDir = path.dirname(SERVERS_FILE);
+if (!fs.existsSync(serversDir)) {
+  fs.mkdirSync(serversDir, { recursive: true });
+}
+
+console.log(
+  `Starting telegram-ssh bot with ${OWNER_IDS.length} owner ID(s), key path "${PATH_PRIVATEKEY}", servers file "${SERVERS_FILE}".`
+);
 
 // Load the servers from the JSON file
 let servers = [];
