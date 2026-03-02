@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/phamthainb/telegram-ssh.git}"
-INSTALL_DIR="/opt/telegram-ssh"
+REPO_URL="${REPO_URL:-https://github.com/MohammadHosseinkargar/telegram-ssh-oneclick.git}"
+INSTALL_DIR="/opt/telegram-ssh-oneclick"
 
 if [[ "$(id -u)" -ne 0 ]]; then
-  echo "Please run as root. Example: curl -fsSL <raw_url>/scripts/quick-install.sh | sudo bash"
+  echo "Please run as root. Example: curl -fsSL https://raw.githubusercontent.com/MohammadHosseinkargar/telegram-ssh-oneclick/main/scripts/quick-install.sh | sudo bash"
   exit 1
 fi
 
@@ -24,4 +24,3 @@ fi
 
 chmod +x "$INSTALL_DIR/install.sh" "$INSTALL_DIR/scripts/quick-install.sh"
 exec "$INSTALL_DIR/install.sh"
-

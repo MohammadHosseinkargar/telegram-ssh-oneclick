@@ -17,7 +17,7 @@ const {
 var exec = require("child_process").exec;
 
 const DEFAULT_PATH_PRIVATEKEY = path.join(os.homedir(), ".ssh", "id_rsa");
-const DEFAULT_SERVERS_FILE = "/opt/telegram-ssh/servers.json";
+const DEFAULT_SERVERS_FILE = "/opt/telegram-ssh-oneclick/servers.json";
 
 function firstDefined(...values) {
   for (const value of values) {
@@ -105,7 +105,7 @@ if (!fs.existsSync(serversDir)) {
 }
 
 console.log(
-  `Starting telegram-ssh bot with ${OWNER_IDS.length} owner ID(s), key path "${PATH_PRIVATEKEY}", servers file "${SERVERS_FILE}".`
+  `Starting telegram-ssh-oneclick bot with ${OWNER_IDS.length} owner ID(s), key path "${PATH_PRIVATEKEY}", servers file "${SERVERS_FILE}".`
 );
 
 // Load the servers from the JSON file

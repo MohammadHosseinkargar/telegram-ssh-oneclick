@@ -1,4 +1,7 @@
-node_modules
+node_modules/
 servers.json
 .env
 dev.sh
+.DS_Store
+npm-debug.log*
+yarn-error.log*

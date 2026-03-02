@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-INSTALL_DIR="/opt/telegram-ssh"
-SERVICE_USER="telegram-ssh"
-SERVICE_NAME="telegram-ssh"
+INSTALL_DIR="/opt/telegram-ssh-oneclick"
+SERVICE_USER="telegram-ssh-oneclick"
+SERVICE_NAME="telegram-ssh-oneclick"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 DEFAULT_SERVERS_FILE="${INSTALL_DIR}/servers.json"
 
@@ -442,7 +442,7 @@ configure_systemd() {
 
   cat >"$SERVICE_FILE" <<EOF
 [Unit]
-Description=Telegram SSH Bot
+Description=Telegram SSH OneClick Bot
 After=network.target
 
 [Service]

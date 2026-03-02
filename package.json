@@ -1,4 +1,16 @@
 {
+  "name": "telegram-ssh-oneclick",
+  "version": "1.0.0",
+  "description": "Telegram-based SSH command bot with one-click Linux installer and system service setup.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohammadHosseinkargar/telegram-ssh-oneclick.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MohammadHosseinkargar/telegram-ssh-oneclick/issues"
+  },
+  "homepage": "https://github.com/MohammadHosseinkargar/telegram-ssh-oneclick",
+  "license": "ISC",
   "dependencies": {
     "dotenv": "^16.3.1",
     "node-telegram-bot-api": "^0.61.0",
