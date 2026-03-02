@@ -223,6 +223,9 @@ ask_bot_token() {
       fail "BOT_TOKEN is required in non-interactive mode."
     fi
 
+    # Normalize pasted token to avoid hidden whitespace/CRLF issues.
+    BOT_TOKEN="$(printf '%s' "$BOT_TOKEN" | tr -d '[:space:]')"
+
     if validate_bot_token "$BOT_TOKEN"; then
       break
     fi
