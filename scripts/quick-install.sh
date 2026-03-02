@@ -23,4 +23,11 @@ else
 fi
 
 chmod +x "$INSTALL_DIR/install.sh" "$INSTALL_DIR/scripts/quick-install.sh"
-exec "$INSTALL_DIR/install.sh"
+
+# If quick-install is piped (curl | bash), stdin is not a TTY.
+# Reattach to /dev/tty so install.sh can run interactively.
+if [[ ! -t 0 && -r /dev/tty ]]; then
+  exec "$INSTALL_DIR/install.sh" </dev/tty
+else
+  exec "$INSTALL_DIR/install.sh"
+fi
